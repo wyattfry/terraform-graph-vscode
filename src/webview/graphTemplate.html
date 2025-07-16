@@ -3,6 +3,13 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="
+  default-src 'none';
+  style-src 'unsafe-inline';
+  script-src https://unpkg.com {webviewUri} 'unsafe-inline';
+  font-src 'self';
+  img-src 'self' data:;
+">
     <title>Terraform Graph</title>
     <script src="https://unpkg.com/cytoscape@3.21.1/dist/cytoscape.min.js"></script>
     <script src="https://unpkg.com/webcola/WebCola/cola.min.js"></script>
@@ -21,9 +28,14 @@
 
 <body>
     <div id="cy"></div>
+    <script src="{graphScriptUri}"></script>
     <script>
-    // Graph initialization will be injected here
-    ${ graphInitScript }
+        // Initialize graph with the data
+        initializeGraph(`{dotData}`);
+    </script>
+    <script>
+        // Graph initialization will be injected here
+        <graphInitScript />
     </script>
 </body>
 

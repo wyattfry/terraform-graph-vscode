@@ -12,9 +12,6 @@
     "Other",
     "Visualization"
   ],
-  "activationEvents": [
-    "onCommand:terraform-graph-viewer.open"
-  ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [

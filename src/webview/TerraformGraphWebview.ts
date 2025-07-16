@@ -15,8 +15,12 @@ export class TerraformGraphWebview {
             {
                 enableScripts: true,
                 retainContextWhenHidden: true,
+                localResourceRoots: [
+                    vscode.Uri.joinPath(extensionUri, 'src', 'webview')
+                ]
             }
         );
+        this._panel.webview.html = "Loading...";
     }
 
     public updateContent(dotData: string): void {
@@ -25,46 +29,21 @@ export class TerraformGraphWebview {
             'utf8'
         );
 
-        const graphInitScript = `
-            const dot = \`${dotData.replace(/`/g, '\u0060')}\`;
-            const edges = [...dot.matchAll(/"([^"]+)" -> "([^"]+)"/g)].map(m => ({ data: { id: m[1] + '_' + m[2], source: m[1], target: m[2] } }));
-            const nodesMap = new Set(edges.flatMap(e => [e.data.source, e.data.target]));
-            const nodes = Array.from(nodesMap).map(id => ({ data: { id } }));
+        // Get the special URI for the script file that VS Code can serve
+        const scriptUri = this._panel.webview.asWebviewUri(
+            vscode.Uri.joinPath(this._extensionUri, 'src', 'webview', 'graph.js')
+        );
 
-            const cy = cytoscape({
-                container: document.getElementById('cy'),
-                elements: nodes.concat(edges),
-                layout: {
-                    name: 'cola',
-                    animate: true
-                },
-                style: [
-                    {
-                        selector: 'node',
-                        style: {
-                            'label': 'data(id)',
-                            'text-valign': 'center',
-                            'color': '#000',
-                            'background-color': '#61bffc',
-                            'font-size': 10,
-                            'shape': 'roundrectangle',
-                            'padding': '5px'
-                        }
-                    },
-                    {
-                        selector: 'edge',
-                        style: {
-                            'width': 1,
-                            'line-color': '#ccc',
-                            'target-arrow-color': '#ccc',
-                            'target-arrow-shape': 'triangle'
-                        }
-                    }
-                ]
-            });
-        `;
+        // Get the webview URI to add to CSP
+        const webviewUri = this._panel.webview.cspSource;
 
-        this._panel.webview.html = htmlTemplate.replace('${graphInitScript}', graphInitScript);
+        // Replace the placeholders in the HTML template
+        const html = htmlTemplate
+            .replace('{webviewUri}', webviewUri)
+            .replace('{graphScriptUri}', scriptUri.toString())
+            .replace('{dotData}', dotData.replace(/`/g, '\u0060').replace(/\\/g, '\\\\'));
+
+        this._panel.webview.html = html;
     }
 
     public dispose(): void {
