@@ -17,34 +17,37 @@ export class TerraformGraphWebview {
                 retainContextWhenHidden: true,
                 localResourceRoots: [
                     vscode.Uri.joinPath(extensionUri, 'src', 'webview')
-                ]
+                ],
+                devTools: true // Enable DevTools for debugging
             }
         );
         this._panel.webview.html = "Loading...";
     }
 
     public updateContent(dotData: string): void {
-        const htmlTemplate = fs.readFileSync(
-            path.join(this._extensionUri.fsPath, 'src', 'webview', 'graphTemplate.html'),
-            'utf8'
-        );
+        console.log('Updating webview content with dot data:', dotData);
+        try {
+            const htmlTemplate = fs.readFileSync(
+                path.join(this._extensionUri.fsPath, 'src', 'webview', 'graphTemplate.html'),
+                'utf8'
+            );
 
-        // Get the special URI for the script file that VS Code can serve
-        const scriptUri = this._panel.webview.asWebviewUri(
-            vscode.Uri.joinPath(this._extensionUri, 'src', 'webview', 'graph.js')
-        );
+            // Get the special URI for the script file that VS Code can serve
+            const scriptUri = this._panel.webview.asWebviewUri(
+                vscode.Uri.joinPath(this._extensionUri, 'src', 'webview', 'graph.js')
+            );
 
-        // Get the webview URI to add to CSP
-        const webviewUri = this._panel.webview.cspSource;
+            // Get the webview URI to add to CSP
+            const webviewUri = this._panel.webview.cspSource;
 
-        // Replace the placeholders in the HTML template
-        const html = htmlTemplate
-            .replace('{webviewUri}', webviewUri)
-            .replace('{graphScriptUri}', scriptUri.toString())
-            .replace('{dotData}', dotData.replace(/`/g, '\u0060').replace(/\\/g, '\\\\'));
+            // Replace the placeholders in the HTML template
+            const html = htmlTemplate
+                .replace('{webviewUri}', webviewUri)
+                .replace('{graphScriptUri}', scriptUri.toString())
+                .replace('{dotData}', dotData.replace(/`/g, '\u0060').replace(/\\/g, '\\\\'));
 
-        this._panel.webview.html = html;
-    }
+            this._panel.webview.html = html;
+        }
 
     public dispose(): void {
         this._panel.dispose();

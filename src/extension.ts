@@ -12,17 +12,12 @@ export function activate(context: vscode.ExtensionContext): void {
 		if (!workspaceFolder) {
 			vscode.window.showErrorMessage('No workspace folder found.');
 			return;
-		} else {
-			console.log(`Generating graph for workspace: ${workspaceFolder}`);
 		}
 
 		try {
 			const graphData = await TerraformService.generateGraph(workspaceFolder);
-			console.log('Graph data generated successfully.', graphData);
 			const webview = new TerraformGraphWebview(context.extensionUri);
-			console.log('Creating webview for graph display.', webview);
 			webview.updateContent(graphData);
-			console.log('Webview content updated with graph data.');
 		} catch (error) {
 			if (error instanceof Error) {
 				vscode.window.showErrorMessage(error.message);
