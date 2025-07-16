@@ -33,8 +33,6 @@ function initializeGraph(dotData) {
         });
     });
 
-    console.log('Creating nodes:', nodes);
-
     try {
         if (!window.cytoscape) {
             console.error('Cytoscape is not loaded!');
@@ -59,9 +57,10 @@ function initializeGraph(dotData) {
                 name: 'dagre',
                 rankDir: 'TB',
                 rankSep: 100,           // Increase vertical spacing
-                nodeSep: 100,           // Increase horizontal spacing
+                nodeSep: 50,           // Increase horizontal spacing
                 nodeDimensionsIncludeLabels: true, // Consider labels in layout calculations
                 animate: true,
+                grid: true,
                 animationDuration: 500,
                 fit: true
             },
@@ -99,12 +98,13 @@ function initializeGraph(dotData) {
                         'line-color': '#666',
                         'target-arrow-color': '#666',
                         'target-arrow-shape': 'triangle',
-                        'curve-style': 'bezier',
-                        'control-point-step-size': 100,  // Increase curve intensity
+                        'curve-style': 'round-taxi',
+                        'taxi-direction': 'downward',
+                        // 'taxi-direction': 'auto',
+                        'taxi-turn': 50,  // Increase the turn distance for more pronounced right angles
+                        'taxi-radius': 10, // Distance to round corners
                         'arrow-scale': 1.2,
                         'target-arrow-fill': 'filled',
-                        'edge-distances': 'node-position', // Changed to improve curve paths
-
                     }
                 }
             ],

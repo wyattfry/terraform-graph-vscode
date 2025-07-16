@@ -25,7 +25,6 @@ export class TerraformGraphWebview {
     }
 
     public updateContent(dotData: string): void {
-        console.log('Updating webview content with dot data:', dotData);
         try {
             const htmlTemplate = fs.readFileSync(
                 path.join(this._extensionUri.fsPath, 'src', 'webview', 'graphTemplate.html'),

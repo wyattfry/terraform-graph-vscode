@@ -30,7 +30,7 @@
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
-    "@types/cytoscape": "^3.19.0",
+    "@types/cytoscape": "^3.21.9",
     "@types/mocha": "^10.0.10",
     "@types/node": "20.x",
     "@types/vscode": "^1.102.0",
@@ -42,7 +42,7 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
-    "cytoscape": "^3.21.1",
+    "cytoscape": "^3.32.1",
     "cytoscape-cola": "^2.5.1",
     "cytoscape-dagre": "^2.5.0",
     "dagre": "^0.8.5"
