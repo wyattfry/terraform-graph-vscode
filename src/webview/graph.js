@@ -58,9 +58,9 @@ function initializeGraph(dotData) {
             layout: {
                 name: 'dagre',
                 rankDir: 'TB',
-                rankSep: 75,
-                nodeSep: 50,
-                nodeDimensionsIncludeLabels: false, // base layout on node bounds only, not labels
+                rankSep: 100,           // Increase vertical spacing
+                nodeSep: 100,           // Increase horizontal spacing
+                nodeDimensionsIncludeLabels: true, // Consider labels in layout calculations
                 animate: true,
                 animationDuration: 500,
                 fit: true
@@ -70,7 +70,10 @@ function initializeGraph(dotData) {
                     selector: 'node',
                     style: {
                         'label': function (ele) {
-                            return ele.data('resourceType') + '\n' + ele.data('name');
+                            const resourceType = ele.data('resourceType');
+                            const name = ele.data('name');
+                            // Add some padding with spaces to help text wrapping
+                            return resourceType + '\n' + name;
                         },
                         'background-color': 'data(boxFillColor)',
                         'border-width': 2,
@@ -80,8 +83,10 @@ function initializeGraph(dotData) {
                         'text-halign': 'center',
                         'font-family': 'monospace',
                         'text-wrap': 'wrap',
-                        'width': '150px',
-                        'height': '60px',
+                        'text-max-width': '200px', // Allow wider text before wrapping
+                        'width': 'label',  // Size to fit the label
+                        'height': 'label', // Size to fit the label
+                        'padding': '20',   // Add padding around the text
                         'text-margin-y': 0,
                         'font-size': 12,
                         'text-justification': 'center'
@@ -95,12 +100,11 @@ function initializeGraph(dotData) {
                         'target-arrow-color': '#666',
                         'target-arrow-shape': 'triangle',
                         'curve-style': 'bezier',
-                        'control-point-step-size': 40,
+                        'control-point-step-size': 100,  // Increase curve intensity
                         'arrow-scale': 1.2,
                         'target-arrow-fill': 'filled',
-                        'edge-distances': 'intersection',
-                        'source-endpoint': '0deg',
-                        'target-endpoint': '180deg'
+                        'edge-distances': 'node-position', // Changed to improve curve paths
+
                     }
                 }
             ],
