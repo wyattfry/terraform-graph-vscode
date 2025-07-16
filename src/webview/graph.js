@@ -12,19 +12,25 @@ function initializeGraph(dotData) {
     const allSources = new Set(edges.map(e => e.data.source));
     const allTargets = new Set(edges.map(e => e.data.target));
     const rootNodes = Array.from(allSources).filter(s => !allTargets.has(s));
-    console.log('Root nodes:', rootNodes);
 
     const nodesMap = new Set(edges.flatMap(e => [e.data.source, e.data.target]));
-    const nodes = Array.from(nodesMap).map(id => {
-        let label = id.split(".").join('\n');
-        let boxFillColor = "";
-        if (id.startsWith("data.")) {
-            boxFillColor = '#b4d8fa';
-        } else {
-            boxFillColor = '#64aff5';
-        }
+    const nodes = [];
+    Array.from(nodesMap).forEach(id => {
+        const parts = id.split(".");
+        const type = id.startsWith('data') ? 'data' : 'resource';
+        const resourceType = parts[parts.length - 2];
+        const name = parts[parts.length - 1];
+        const boxFillColor = type === "data" ? '#b4d8fa' : '#64aff5';
 
-        return { data: { id, label, boxFillColor } };
+        // Main node
+        nodes.push({
+            data: {
+                id: id,
+                resourceType: resourceType,
+                name: name,
+                boxFillColor: boxFillColor
+            }
+        });
     });
 
     console.log('Creating nodes:', nodes);
@@ -45,53 +51,56 @@ function initializeGraph(dotData) {
 
         // Register the dagre layout
         cytoscapeDagre(cytoscape);
-        console.log('Dagre layout registered with Cytoscape');
 
         const cy = cytoscape({
             container: document.getElementById('cy'),
             elements: [...nodes, ...edges],
             layout: {
                 name: 'dagre',
-                rankDir: 'TB',          // Top to Bottom layout
-                align: 'UL',           // Align nodes at the Upper Left
-                rankSep: 75,           // Vertical spacing between nodes
-                nodeSep: 50,           // Horizontal spacing between nodes
-                edgeSep: 10,           // Edge spacing
-                ranker: 'network-simplex', // Layer assignment method
+                rankDir: 'TB',
+                rankSep: 75,
+                nodeSep: 50,
+                nodeDimensionsIncludeLabels: false, // base layout on node bounds only, not labels
                 animate: true,
                 animationDuration: 500,
-                fit: true,
-                padding: 30
+                fit: true
             },
             style: [
                 {
                     selector: 'node',
                     style: {
-                        'label': 'data(label)',
-                        'font-family': 'monospace',
+                        'label': function (ele) {
+                            return ele.data('resourceType') + '\n' + ele.data('name');
+                        },
+                        'background-color': 'data(boxFillColor)',
+                        'border-width': 2,
+                        'border-color': '#666',
+                        'shape': 'roundrectangle',
                         'text-valign': 'center',
                         'text-halign': 'center',
-                        'color': 'var(--vscode-editor-foreground)',
-                        'background-color': 'data(boxFillColor)',
-                        'border-width': 1,
-                        'border-color': '#999',
-                        'font-size': 12,
-                        'shape': 'roundrectangle',
-                        'padding': '8px',
+                        'font-family': 'monospace',
                         'text-wrap': 'wrap',
-                        'text-justification': 'left',
-                        'text-max-width': '160px',
-                        'width': 'label',
-                        'height': 'label'
+                        'width': '150px',
+                        'height': '60px',
+                        'text-margin-y': 0,
+                        'font-size': 12,
+                        'text-justification': 'center'
                     }
                 },
                 {
                     selector: 'edge',
                     style: {
-                        'width': 1,
-                        'line-color': '#888',
-                        'target-arrow-color': '#888',
-                        'target-arrow-shape': 'triangle'
+                        'width': 2,
+                        'line-color': '#666',
+                        'target-arrow-color': '#666',
+                        'target-arrow-shape': 'triangle',
+                        'curve-style': 'bezier',
+                        'control-point-step-size': 40,
+                        'arrow-scale': 1.2,
+                        'target-arrow-fill': 'filled',
+                        'edge-distances': 'intersection',
+                        'source-endpoint': '0deg',
+                        'target-endpoint': '180deg'
                     }
                 }
             ],
