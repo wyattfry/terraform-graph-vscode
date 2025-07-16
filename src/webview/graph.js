@@ -14,17 +14,15 @@ function initializeGraph(dotData) {
 
     const nodesMap = new Set(edges.flatMap(e => [e.data.source, e.data.target]));
     const nodes = Array.from(nodesMap).map(id => {
-        const match = id.match(/(data|resource)\.(.*?)\.(.*)/);
-        let label = id;
-        if (match) {
-            const [, type, resourceType, resourceName] = match;
-            if (type === 'data') {
-                label = `data source\n${resourceType}\n${resourceName}`;
-            } else {
-                label = `resource\n${resourceType}\n${resourceName}`;
-            }
+        let label = id.split(".").join('\n');
+        let boxFillColor = "";
+        if (id.startsWith("data.")) {
+            boxFillColor = '#b4d8fa';
+        } else {
+            boxFillColor = '#64aff5';
         }
-        return { data: { id, label } };
+
+        return { data: { id, label, boxFillColor } };
     });
 
     const cy = cytoscape({
@@ -48,12 +46,12 @@ function initializeGraph(dotData) {
             {
                 selector: 'node',
                 style: {
-                    'label': 'data(id)',
+                    'label': 'data(label)',
                     'font-family': 'monospace',
                     'text-valign': 'center',
                     'text-halign': 'center',
                     'color': 'var(--vscode-editor-foreground)',
-                    'background-color': 'var(--vscode-editor-background)',
+                    'background-color': 'data(boxFillColor)',
                     'border-width': 1,
                     'border-color': '#999',
                     'font-size': 12,
