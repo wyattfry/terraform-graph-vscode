@@ -16,7 +16,8 @@ export class TerraformGraphWebview {
                 enableScripts: true,
                 retainContextWhenHidden: true,
                 localResourceRoots: [
-                    vscode.Uri.joinPath(extensionUri, 'src', 'webview'),
+                    vscode.Uri.joinPath(extensionUri, 'out', 'webview'),
+                    vscode.Uri.joinPath(extensionUri, 'src', 'webview'), // For development
                     vscode.Uri.joinPath(extensionUri, 'node_modules')
                 ],
             }
@@ -45,17 +46,28 @@ export class TerraformGraphWebview {
         return this._panel.webview.asWebviewUri(vscode.Uri.file(scriptPath));
     }
 
+    private getAssetPath(filename: string): string {
+        // Try compiled output first, then fallback to source (for development)
+        const outPath = path.join(this._extensionUri.fsPath, 'out', 'webview', filename);
+        const srcPath = path.join(this._extensionUri.fsPath, 'src', 'webview', filename);
+
+        if (fs.existsSync(outPath)) {
+            return outPath;
+        } else if (fs.existsSync(srcPath)) {
+            return srcPath;
+        } else {
+            throw new Error(`Asset not found: ${filename}`);
+        }
+    }
+
     public updateContent(dotData: string): void {
         try {
-            let htmlTemplate = fs.readFileSync(
-                path.join(this._extensionUri.fsPath, 'src', 'webview', 'graphTemplate.html'),
-                'utf8'
-            );
+            const htmlPath = this.getAssetPath('graphTemplate.html');
+            let htmlTemplate = fs.readFileSync(htmlPath, 'utf8');
 
             // Get the special URI for the script file that VS Code can serve
-            const scriptUri = this._panel.webview.asWebviewUri(
-                vscode.Uri.joinPath(this._extensionUri, 'src', 'webview', 'graph.js')
-            );
+            const scriptPath = this.getAssetPath('graph.js');
+            const scriptUri = this._panel.webview.asWebviewUri(vscode.Uri.file(scriptPath));
 
             // Get the webview URI to add to CSP
             const webviewUri = this._panel.webview.cspSource;
@@ -72,6 +84,8 @@ export class TerraformGraphWebview {
             this._panel.webview.html = html;
         } catch (error) {
             console.error('Error updating content:', error);
+            this._panel.webview.html = `<!DOCTYPE html><html><body><h1>Error loading graph</h1><p>There was an error loading the graph.</p><h2>Error Details:</h2><pre>${error}</pre></body></html>`;
+            vscode.window.showErrorMessage('Failed to load the Terraform graph. Check the console for details.');
         }
     }
 

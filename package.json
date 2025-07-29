@@ -26,12 +26,17 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
+    "vscode:prepublish": "npm run compile && npm run copy-assets",
     "compile": "tsc -p ./",
+    "copy-assets": "mkdir -p out/webview && cp src/webview/graphTemplate.html out/webview/ && cp src/webview/graph.js out/webview/",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
+    "test": "vscode-test",
+    "package": "npm run compile && npm run copy-assets && vsce package",
+    "install-local": "npm run package && code --install-extension terraform-graph-vscode-0.0.1.vsix",
+    "build-and-install": "npm run package && code --uninstall-extension vscode.terraform-graph-vscode && code --install-extension terraform-graph-vscode-0.0.1.vsix",
+    "dev": "npm run build-and-install"
   },
   "devDependencies": {
     "@types/cytoscape": "^3.21.9",
