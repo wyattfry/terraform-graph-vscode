@@ -6,15 +6,14 @@
     <meta http-equiv="Content-Security-Policy" content="
   default-src 'none';
   style-src 'unsafe-inline';
-  script-src https://js.cytoscape.org https://unpkg.com {webviewUri} 'unsafe-inline';
+  script-src {webviewUri} 'unsafe-inline';
   font-src 'self';
   img-src 'self' data:;
 ">
     <title>Terraform Graph</title>
-    <!-- <script src="https://unpkg.com/cytoscape@3.24.0/dist/cytoscape.min.js"></script> -->
-    <script src="https://js.cytoscape.org/js/cytoscape.min.js"></script>"
-    <script src="https://unpkg.com/dagre@0.8.5/dist/dagre.min.js"></script>
-    <script src="https://unpkg.com/cytoscape-dagre@2.5.0/cytoscape-dagre.js"></script>
+    <script src="{cytoscape-uri}"></script>
+    <script src="{dagre-uri}"></script>
+    <script src="{cytoscape-dagre-uri}"></script>
     <script>
         // Make cytoscape-dagre available globally
         window.cytoscapeDagre = window.cytoscapeDagre || window.CytoscapeDagre;

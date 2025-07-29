@@ -16,17 +16,38 @@ export class TerraformGraphWebview {
                 enableScripts: true,
                 retainContextWhenHidden: true,
                 localResourceRoots: [
-                    vscode.Uri.joinPath(extensionUri, 'src', 'webview')
+                    vscode.Uri.joinPath(extensionUri, 'src', 'webview'),
+                    vscode.Uri.joinPath(extensionUri, 'node_modules')
                 ],
-                devTools: true // Enable DevTools for debugging
             }
         );
         this._panel.webview.html = "Loading...";
     }
 
+    private getScriptUri(scriptName: string): vscode.Uri {
+        const nodeModulesPath = path.join(this._extensionUri.fsPath, 'node_modules');
+        let scriptPath: string;
+
+        switch (scriptName) {
+            case 'cytoscape':
+                scriptPath = path.join(nodeModulesPath, 'cytoscape', 'dist', 'cytoscape.min.js');
+                break;
+            case 'dagre':
+                scriptPath = path.join(nodeModulesPath, 'dagre', 'dist', 'dagre.min.js');
+                break;
+            case 'cytoscape-dagre':
+                scriptPath = path.join(nodeModulesPath, 'cytoscape-dagre', 'cytoscape-dagre.js');
+                break;
+            default:
+                throw new Error(`Unknown script: ${scriptName}`);
+        }
+
+        return this._panel.webview.asWebviewUri(vscode.Uri.file(scriptPath));
+    }
+
     public updateContent(dotData: string): void {
         try {
-            const htmlTemplate = fs.readFileSync(
+            let htmlTemplate = fs.readFileSync(
                 path.join(this._extensionUri.fsPath, 'src', 'webview', 'graphTemplate.html'),
                 'utf8'
             );
@@ -39,14 +60,20 @@ export class TerraformGraphWebview {
             // Get the webview URI to add to CSP
             const webviewUri = this._panel.webview.cspSource;
 
-            // Replace the placeholders in the HTML template
+            // Replace all the placeholders in the HTML template
             const html = htmlTemplate
                 .replace('{webviewUri}', webviewUri)
+                .replace('{cytoscape-uri}', this.getScriptUri('cytoscape').toString())
+                .replace('{dagre-uri}', this.getScriptUri('dagre').toString())
+                .replace('{cytoscape-dagre-uri}', this.getScriptUri('cytoscape-dagre').toString())
                 .replace('{graphScriptUri}', scriptUri.toString())
                 .replace('{dotData}', dotData.replace(/`/g, '\u0060').replace(/\\/g, '\\\\'));
 
             this._panel.webview.html = html;
+        } catch (error) {
+            console.error('Error updating content:', error);
         }
+    }
 
     public dispose(): void {
         this._panel.dispose();

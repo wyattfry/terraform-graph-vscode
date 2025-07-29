@@ -4,6 +4,10 @@
   "description": "Preview of the Terraform dependency graph, but pretty",
   "version": "0.0.1",
   "publisher": "vscode",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wyattfry/terraform-graph-vscode"
+  },
   "private": true,
   "engines": {
     "vscode": "^1.102.0"
@@ -43,8 +47,7 @@
   },
   "dependencies": {
     "cytoscape": "^3.32.1",
-    "cytoscape-cola": "^2.5.1",
-    "cytoscape-dagre": "^2.5.0",
-    "dagre": "^0.8.5"
+    "dagre": "^0.8.5",
+    "cytoscape-dagre": "^2.5.0"
   }
 }
