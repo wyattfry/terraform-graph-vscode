@@ -1,11 +1,12 @@
-# terraf# Terraform Graph Viewer
+# (yet another) Terraform Graph Viewer
 
 A VS Code extension that provides a visual representation of your Terraform dependency graph.
+
+![Screenshot of the extension in action, showing the rendered dependency graph](screenshot.png)
 
 ## Features
 
 - Visualizes Terraform resource dependencies in a clear, interactive graph
-- Automatically updates as you modify your Terraform configuration
 - Shows resource types and names in an easy-to-read format
 - Supports zooming and panning for large graphs
 - Different colors for data sources and resources
